@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import app from '../firebaseConfig';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar as solidStar } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
   const [recipes, setRecipes] = useState([]);
@@ -16,7 +18,8 @@ const Home = () => {
         const userDocRef = doc(db, 'users', data.authorId);
         const userDoc = await getDoc(userDocRef);
         const authorNickname = userDoc.exists() ? userDoc.data().nickname : 'Unknown';
-        return { id: docSnapshot.id, ...data, authorNickname };
+        const favoriteCount = data.favorites ? data.favorites.length : 0;
+        return { id: docSnapshot.id, ...data, authorNickname, favoriteCount };
       }));
       const sortedRecipesList = recipesList.sort((a, b) => a.title.localeCompare(b.title)); // 제목을 기준으로 정렬
       setRecipes(sortedRecipesList);
@@ -38,9 +41,17 @@ const Home = () => {
             key={recipe.id}
             className="block mb-4 p-4 bg-white shadow-md rounded hover:bg-gray-200 transition"
           >
-            <h3 className="text-xl font-semibold">{recipe.title}</h3>
-            <p className="text-gray-500">{`By ${recipe.authorNickname}`}</p>
-            <p className="text-gray-400">{new Date(recipe.createdAt).toLocaleString()}</p>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-xl font-semibold">
+                {recipe.title}{' '}
+                <span className="text-sm text-gray-500">by {recipe.authorNickname}</span>
+              </h3>
+            </div>
+            <p className="text-gray-400 mb-2">{new Date(recipe.createdAt).toLocaleString()}</p>
+            <div className="flex items-center text-gray-500">
+              <FontAwesomeIcon icon={solidStar} className="text-yellow-500 mr-1" />
+              <span>{recipe.favoriteCount}</span>
+            </div>
           </Link>
         ))
       )}

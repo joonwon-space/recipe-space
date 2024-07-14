@@ -21,7 +21,7 @@ const EditRecipe = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUser = () => {
       onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
           setUser(currentUser);
@@ -29,12 +29,14 @@ const EditRecipe = () => {
           if (userDoc.exists()) {
             setNickname(userDoc.data().nickname);
           }
+        } else {
+          navigate('/login');
         }
       });
     };
 
     fetchUser();
-  }, [auth, db]);
+  }, [auth, db, navigate]);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -47,14 +49,21 @@ const EditRecipe = () => {
         setIngredients(data.ingredients);
         setInstructions(data.instructions);
         setExistingImageUrls(data.imageUrls || []);
+
+        if (data.authorId !== user.uid) {
+          alert('You do not have permission to edit this recipe.');
+          navigate('/');
+        }
       } else {
         alert('Recipe not found');
-        navigate('/recipes');
+        navigate('/');
       }
     };
 
-    fetchRecipe();
-  }, [db, id, navigate]);
+    if (user) {
+      fetchRecipe();
+    }
+  }, [db, id, navigate, user]);
 
   const handleFileChange = (e) => {
     setFiles(e.target.files);

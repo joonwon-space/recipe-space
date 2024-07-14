@@ -132,8 +132,12 @@ const Recipes = () => {
               ))}
             </ol>
             <p className="text-gray-400 text-sm">By {recipe.authorNickname} on {new Date(recipe.createdAt).toLocaleDateString()}</p>
-            <Link to={`/edit-recipe/${recipe.id}`} className="text-blue-500 hover:underline mr-4">Edit</Link>
-            <button onClick={() => handleDelete(recipe.id)} className="text-red-500 hover:underline">Delete</button>
+            {user && user.uid === recipe.authorId && (
+              <>
+                <Link to={`/edit-recipe/${recipe.id}`} className="text-blue-500 hover:underline mr-4">Edit</Link>
+                <button onClick={() => handleDelete(recipe.id)} className="text-red-500 hover:underline">Delete</button>
+              </>
+            )}
             {recipe.imageUrls && recipe.imageUrls.length > 0 && (
               <div className="mt-4">
                 {recipe.imageUrls.map((url, index) => (
