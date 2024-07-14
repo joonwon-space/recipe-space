@@ -168,9 +168,11 @@ const RecipeDetail = () => {
               </div>
             )}
             {recipe.imageUrls && recipe.imageUrls.length > 0 && (
-              <div className="mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                 {recipe.imageUrls.map((url, index) => (
-                  <img key={index} src={url} alt={`Recipe ${index}`} className="w-full h-auto mb-2 max-w-lg mx-auto" />
+                  <div key={index} className="w-full max-w-[512px] h-[512px] mx-auto">
+                    <img src={url} alt={`Recipe ${index}`} className="w-full h-full object-contain" />
+                  </div>
                 ))}
               </div>
             )}
