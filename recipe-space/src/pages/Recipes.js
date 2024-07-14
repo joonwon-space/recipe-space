@@ -1,28 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
-import { Link } from 'react-router-dom';
+import { getFirestore, collection, getDocs, doc, deleteDoc, query, where, getDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Link, useNavigate } from 'react-router-dom';
 import app from '../firebaseConfig';
 
 const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
   const db = getFirestore(app);
+  const auth = getAuth(app);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = () => {
+      onAuthStateChanged(auth, (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+        } else {
+          setUser(null);
+          navigate('/login'); // 로그인이 안되어있다면 로그인 페이지로 이동
+        }
+      });
+    };
+
+    fetchUser();
+  }, [auth, navigate]);
 
   useEffect(() => {
     const fetchRecipes = async () => {
-      const querySnapshot = await getDocs(collection(db, 'recipes'));
-      const recipesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const q = query(collection(db, 'recipes'), where('authorId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      const recipesList = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
+        const data = docSnapshot.data();
+        const userDocRef = doc(db, 'users', data.authorId);
+        const userDoc = await getDoc(userDocRef);
+        const authorNickname = userDoc.exists() ? userDoc.data().nickname : 'Unknown';
+        return { id: docSnapshot.id, ...data, authorNickname };
+      }));
       setRecipes(recipesList);
       setLoading(false);
     };
 
     fetchRecipes();
-  }, [db]);
-
-  const filteredRecipes = recipes.filter(recipe =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  }, [db, user]);
 
   const handleDelete = async (id) => {
     try {
@@ -34,6 +61,10 @@ const Recipes = () => {
       alert('Failed to delete recipe. Please try again.');
     }
   };
+
+  const filteredRecipes = recipes.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getYouTubeEmbedUrl = (url) => {
     if (!url) return '';
@@ -58,7 +89,7 @@ const Recipes = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <h2 className="text-3xl font-bold mb-4">Recipe List</h2>
+      <h2 className="text-3xl font-bold mb-4">My Recipes</h2>
       <input
         type="text"
         placeholder="Search recipes..."
@@ -100,7 +131,7 @@ const Recipes = () => {
                 <li key={index}>{instruction}</li>
               ))}
             </ol>
-            <p className="text-gray-400 text-sm">By {recipe.author} on {new Date(recipe.createdAt).toLocaleDateString()}</p>
+            <p className="text-gray-400 text-sm">By {recipe.authorNickname} on {new Date(recipe.createdAt).toLocaleDateString()}</p>
             <Link to={`/edit-recipe/${recipe.id}`} className="text-blue-500 hover:underline mr-4">Edit</Link>
             <button onClick={() => handleDelete(recipe.id)} className="text-red-500 hover:underline">Delete</button>
             {recipe.imageUrls && recipe.imageUrls.length > 0 && (

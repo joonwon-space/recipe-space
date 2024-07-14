@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './components/Home';
+import Home from './pages/Home'; 
 import Recipes from './pages/Recipes';
 import RecipeDetail from './pages/RecipeDetail';
-import AddRecipe from './pages/AddRecipe'; // AddRecipe 페이지로 이동
-import EditRecipe from './pages/EditRecipe'; // EditRecipe 페이지로 이동
-import Login from './pages/Login';
+import AddRecipe from './pages/AddRecipe'; 
+import EditRecipe from './pages/EditRecipe'; 
+import SetNickname from './pages/SetNickname'; // SetNickname 페이지 import
 import Header from './components/Header';
 
 const App = () => {
@@ -17,9 +17,9 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
-          <Route path="/add-recipe" element={<AddRecipe />} /> {/* AddRecipe 경로 추가 */}
-          <Route path="/edit-recipe/:id" element={<EditRecipe />} /> {/* EditRecipe 경로 추가 */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/add-recipe" element={<AddRecipe />} />
+          <Route path="/edit-recipe/:id" element={<EditRecipe />} />
+          <Route path="/set-nickname" element={<SetNickname />} /> {/* SetNickname 경로 추가 */}
         </Routes>
       </div>
     </Router>
