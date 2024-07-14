@@ -7,6 +7,7 @@ import EditRecipe from '../components/EditRecipe';
 const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [editingRecipe, setEditingRecipe] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const db = getFirestore(app);
 
   useEffect(() => {
@@ -19,14 +20,27 @@ const Recipes = () => {
     fetchRecipes();
   }, [db]);
 
+  const filteredRecipes = recipes.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <h2>Recipe List</h2>
-      {recipes.map((recipe) => (
-        <div key={recipe.id}>
-          <h3>{recipe.title}</h3>
-          <p>{recipe.description}</p>
-          <button onClick={() => setEditingRecipe(recipe)}>Edit</button>
+      <input
+        type="text"
+        placeholder="Search recipes..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      {filteredRecipes.map((recipe) => (
+        <div key={recipe.id} className="mb-4 p-4 border rounded">
+          {recipe.imageUrl && (
+            <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-auto mb-2" />
+          )}
+          <h3 className="text-xl font-semibold">{recipe.title}</h3>
+          <p className="text-gray-600">{recipe.description}</p>
+          <button onClick={() => setEditingRecipe(recipe)} className="text-blue-500 hover:underline">Edit</button>
         </div>
       ))}
       {editingRecipe && (

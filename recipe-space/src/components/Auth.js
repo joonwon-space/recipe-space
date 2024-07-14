@@ -1,6 +1,6 @@
 // src/components/Auth.js
 import React, { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -27,6 +27,18 @@ const Auth = () => {
       });
   };
 
+const handleGoogleSignIn = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      console.log('User signed in:', result.user);
+    })
+    .catch((error) => {
+      console.error('Error signing in:', error);
+    });
+};
+
+
   return (
     <div>
       <input
@@ -43,6 +55,7 @@ const Auth = () => {
       />
       <button onClick={handleSignUp}>Sign Up</button>
       <button onClick={handleSignIn}>Sign In</button>
+      <button onClick={handleGoogleSignIn}>Sign in with Google</button>
     </div>
   );
 };
