@@ -13,6 +13,7 @@ const RecipeDetail = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false); // Video accordion state
   const db = getFirestore(app);
   const auth = getAuth(app);
   const navigate = useNavigate();
@@ -155,16 +156,26 @@ const RecipeDetail = () => {
               ))}
             </ol>
             {recipe.videoLink && (
-              <div className="mb-4 aspect-w-16 aspect-h-9">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={getYouTubeEmbedUrl(recipe.videoLink)}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title={recipe.title}
-                ></iframe>
+              <div className="mb-4">
+                <button
+                  onClick={() => setIsVideoOpen(!isVideoOpen)}
+                  className="w-full text-left font-bold text-lg text-blue-500 hover:underline focus:outline-none"
+                >
+                  {isVideoOpen ? 'Hide Video' : 'Show Video'}
+                </button>
+                {isVideoOpen && (
+                  <div className="aspect-w-16 aspect-h-9 mt-2">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={getYouTubeEmbedUrl(recipe.videoLink)}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={recipe.title}
+                    ></iframe>
+                  </div>
+                )}
               </div>
             )}
             {recipe.imageUrls && recipe.imageUrls.length > 0 && (
